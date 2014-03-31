@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "node-gcs": "0.0.4",
-    "request": "^2.34.0"
+    "request": "^2.34.0",
+    "mime": "^1.2.11"
   }
 }
