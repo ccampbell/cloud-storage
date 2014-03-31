@@ -1,6 +1,8 @@
 # Cloud Storage
 
-Simple wrapper for uploading and deleting files from Google Cloud Storage
+Simple wrapper for uploading and deleting files from Google Cloud Storage.
+
+Thanks to @bsphere for https://github.com/bsphere/node-gcs
 
 ## Installation
 
@@ -63,7 +65,7 @@ var options = {
     },
 
     // remove the original file on disk after it is copied
-    remove: true
+    removeAfterCopy: true
 };
 
 storage.copy('/path/to/file.jpg', 'gs://some-bucket/images/file.jpg', options, function(err, url) {
