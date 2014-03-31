@@ -60,7 +60,10 @@ var options = {
     metadata: {
         'width': 100,
         'height': 100
-    }
+    },
+
+    // remove the original file on disk after it is copied
+    remove: true
 };
 
 storage.copy('/path/to/file.jpg', 'gs://some-bucket/images/file.jpg', options, function(err, url) {
