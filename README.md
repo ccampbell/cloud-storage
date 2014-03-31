@@ -76,7 +76,7 @@ storage.copy('/path/to/file.jpg', 'gs://some-bucket/images/file.jpg', options, f
 #### Get a url for a file
 
 ```javascript
-var url = storage.getUrl('gs://some-bucket-images/file.jpg')
+var url = storage.getUrl('gs://some-bucket/images/file.jpg')
 
 // expiration time in seconds
 var options = {
@@ -84,5 +84,5 @@ var options = {
     download: true
 };
 
-var signedUrl = storage.getSignedUrl('gs://some-bucket-images/file.jpg', options)
+var signedUrl = storage.getSignedUrl('gs://some-bucket/images/file.jpg', options)
 ```
