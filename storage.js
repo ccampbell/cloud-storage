@@ -1,4 +1,5 @@
 var fs = require('fs');
+var crypto = require('crypto');
 var GAPI = require('node-gcs').gapitoken;
 var GCS = require('node-gcs');
 var request = require('request');
@@ -45,12 +46,46 @@ function CloudStorage(options) {
         keyFile: options.privateKey
     };
 
+    this.privateKey = null;
     this.gapi = null;
 }
 
 CloudStorage.prototype.getUrl = function(gcsUrl) {
     var data = _parseGcsUrl(gcsUrl);
     return 'http://' + data.bucket + '.storage.googleapis.com/' + data.path;
+};
+
+// @see http://stackoverflow.com/questions/20754279/creating-signed-urls-for-google-cloud-storage-using-nodejs
+CloudStorage.prototype.getSignedUrl = function(gcsUrl, options) {
+    var self = this;
+
+    options = options || {};
+
+    // default to one hour
+    if (!options.hasOwnProperty('expiration')) {
+        options.expiration = 3600;
+    }
+
+    var data = _parseGcsUrl(gcsUrl);
+
+    var expiry = Math.round((new Date().getTime() / 1000) + options.expiration);
+    var stringPolicy = "GET\n" + "\n" + "\n" + expiry + "\n" + '/' + data.bucket + '/' + data.path;
+
+    // synchronous but only the first time this runs
+    if (!self.privateKey) {
+        self.privateKey = fs.readFileSync(self.options.privateKey, 'utf-8')
+    }
+
+    var signature = encodeURIComponent(crypto.createSign('sha256').update(stringPolicy).sign(self.privateKey, 'base64'))
+    var fullUrl = (options.secure || options.ssl) ? 'https://' : 'http://'
+    fullUrl += data.bucket + '.storage.googleapis.com/' + data.path + '?GoogleAccessId=' + self.options.accessId + '&Expires=' + expiry + '&Signature=' + signature;
+
+    if (options.download) {
+        var filename = options.filename || gcsUrl.split('/').pop();
+        fullUrl += '&response-content-disposition=' + encodeURIComponent('attachment; filename="' + filename + '"');
+    }
+
+    return fullUrl;
 };
 
 CloudStorage.prototype.copy = function(src, destination, options, callback) {
@@ -60,6 +95,8 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
         callback = options;
         options = undefined;
     }
+
+    callback = callback || function() {};
 
     if (options === undefined) {
         options = {};
@@ -148,14 +185,16 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
                 return;
             }
 
+            var isPublic = headers['X-Goog-Acl'].indexOf('public-') === 0;
+
             if (options.removeAfterCopy) {
                 fs.unlink(path, function() {
-                    callback(null, self.getUrl(destination));
+                    callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination));
                 });
                 return;
             }
 
-            callback(null, self.getUrl(destination));
+            callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination));
         });
     }
 
@@ -172,9 +211,12 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 CloudStorage.prototype.remove = function(path, callback) {
     var self = this;
 
+    callback = callback || function() {};
+
     function _remove(path) {
         var gcs = new GCS(self.gapi);
         var data = _parseGcsUrl(path);
+
         gcs.deleteFile(data.bucket, '/' + data.path, function(err, resp, body) {
             if (err) {
                 callback(err, false);
