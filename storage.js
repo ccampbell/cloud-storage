@@ -1,9 +1,10 @@
 var fs = require('fs');
 var crypto = require('crypto');
-var GAPI = require('node-gcs').gapitoken;
-var GCS = require('node-gcs');
 var request = require('request');
 var mime = require('mime');
+var GAPI = require('node-gcs').gapitoken;
+var GCS = require('node-gcs');
+var progress = require('progress-stream');
 
 function _parseGcsUrl(url) {
     url = url.replace('gs://', '');
@@ -145,8 +146,25 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 
     function _copy(path, stat) {
 
+        var progressStream;
+        if (options.onProgress) {
+            progressStream = progress({
+                length: stat.size,
+                time: options.progressInterval || 200
+            });
+
+            progressStream.on('progress', function(progress) {
+                options.onProgress.call(options, options.progressId || destination, progress);
+            });
+        }
+
         // go go go go
         var stream = fs.createReadStream(path);
+
+        if (progressStream) {
+            stream = stream.pipe(progressStream);
+        }
+
         var headers = {
             'Content-Length': stat.size,
             'Content-Type': mime.lookup(path),

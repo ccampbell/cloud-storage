@@ -18,6 +18,7 @@
   "dependencies": {
     "node-gcs": "0.0.4",
     "request": "^2.34.0",
-    "mime": "^1.2.11"
+    "mime": "^1.2.11",
+    "progress-stream": "^0.4.0"
   }
 }
