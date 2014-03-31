@@ -73,11 +73,11 @@ CloudStorage.prototype.getSignedUrl = function(gcsUrl, options) {
 
     // synchronous but only the first time this runs
     if (!self.privateKey) {
-        self.privateKey = fs.readFileSync(self.options.privateKey, 'utf-8')
+        self.privateKey = fs.readFileSync(self.options.privateKey, 'utf-8');
     }
 
-    var signature = encodeURIComponent(crypto.createSign('sha256').update(stringPolicy).sign(self.privateKey, 'base64'))
-    var fullUrl = (options.secure || options.ssl) ? 'https://' : 'http://'
+    var signature = encodeURIComponent(crypto.createSign('sha256').update(stringPolicy).sign(self.privateKey, 'base64'));
+    var fullUrl = (options.secure || options.ssl) ? 'https://' : 'http://';
     fullUrl += data.bucket + '.storage.googleapis.com/' + data.path + '?GoogleAccessId=' + self.options.accessId + '&Expires=' + expiry + '&Signature=' + signature;
 
     if (options.download) {
