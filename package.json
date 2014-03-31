@@ -1,0 +1,22 @@
+{
+  "name": "cloud-storage",
+  "version": "0.1.0",
+  "description": "Simple wrapper for uploading and deleting files from Google Cloud Storage",
+  "main": "storage.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git://github.com/ccampbell/cloud-storage",
+  "keywords": [
+    "google",
+    "cloud",
+    "storage",
+    "gcs"
+  ],
+  "author": "Craig Campbell",
+  "license": "MIT",
+  "dependencies": {
+    "node-gcs": "0.0.4",
+    "request": "^2.34.0"
+  }
+}
