@@ -6,6 +6,12 @@ Thanks to @bsphere for https://github.com/bsphere/node-gcs
 
 ## Installation
 
+```
+npm install cloud-storage
+```
+
+## Getting Started
+
 1.  Sign into the Google Cloud Console site: https://console.developers.google.com
 2.  Go to your project and under **APIs & auth** click on **Credentials**
 3.  Create an Oauth **Service Account** for your project if you don't already have one
