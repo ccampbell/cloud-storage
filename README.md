@@ -15,16 +15,16 @@ npm install cloud-storage
 1.  Sign into the Google Cloud Console site: https://console.developers.google.com
 2.  Go to your project and under **APIs & auth** click on **Credentials**
 3.  Create an Oauth **Service Account** for your project if you don't already have one
-4.  Under the **Service Account** section copy your Email address (that is your `accessId`)
+4.  Under the **Service Account** section copy your email address (that is your `accessId`)
 5.  If you do not have a private key, click `Generate new key` to generate one (this will download a .p12 file to your computer)
-6.  Convert the key to PEM
+6.  Convert the key to a .pem file
 
     ```
     openssl pkcs12 -in path/to/key.p12 -nodes -nocerts > path/to/key.pem
     ```
 
 7.  If prompted for a password enter `notasecret`
-8.  Store this .pem file somewhere (the path to this file is your `privateKey`)
+8.  Store this .pem file somewhere secret (the path to this file is your `privateKey`)
 
 ## Usage
 
