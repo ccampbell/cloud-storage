@@ -18,9 +18,9 @@ function _parseGcsUrl(url) {
 }
 
 // @todo follow 301 and 302 redirects
-function _download(url, callback) {
+function _head(url, callback) {
     request.head(url, function(err, resp) {
-        if (err) {
+       if (err) {
             callback(err);
             return;
         }
@@ -30,10 +30,7 @@ function _download(url, callback) {
             return;
         }
 
-        var tmpPath = url.split('/').pop();
-        request(url).pipe(fs.createWriteStream(tmpPath)).on('close', function() {
-            callback(null, tmpPath, true);
-        });
+        callback(null, request(url), {size: parseInt(resp.headers['content-length'])})
     });
 }
 
@@ -108,21 +105,6 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
         src = 'http:' + src;
     }
 
-    function _onFileReady(err, path, removeAfterCopy) {
-        if (err) {
-            callback(err);
-            return;
-        }
-
-        if (removeAfterCopy) {
-            options.removeAfterCopy = true;
-        }
-
-        fs.stat(path, function(err, stat) {
-            _onStat(err, path, stat);
-        });
-    }
-
     function _onStat(err, path, stat) {
         if (err) {
             callback(err);
@@ -159,7 +141,7 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
         }
 
         // go go go go
-        var stream = fs.createReadStream(path);
+        var stream = path.readable ? path : fs.createReadStream(path);
 
         if (progressStream) {
             stream = stream.pipe(progressStream);
@@ -167,7 +149,7 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 
         var headers = {
             'Content-Length': stat.size,
-            'Content-Type': mime.lookup(path),
+            'Content-Type': mime.lookup(path.href || path),
             'Cache-Control': 'public, max-age=3600, no-transform',
             'X-Goog-Acl': 'public-read'
         };
@@ -205,7 +187,7 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 
             var isPublic = headers['X-Goog-Acl'].indexOf('public-') === 0;
 
-            if (options.removeAfterCopy) {
+            if (options.removeAfterCopy && !path.readable) {
                 fs.unlink(path, function() {
                     callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination));
                 });
@@ -216,14 +198,14 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
         });
     }
 
-    // @todo figure out a way to make this more efficient
-    // like posting the stream directly to google cloud storage
     if (/^https?:\/\//.test(src)) {
-        _download(src, _onFileReady);
+        _head(src, _onStat);
         return;
     }
 
-    _onFileReady(null, src);
+    fs.stat(src, function(err, stat) {
+        _onStat(err, src, stat);
+    });
 };
 
 CloudStorage.prototype.remove = function(path, callback) {
