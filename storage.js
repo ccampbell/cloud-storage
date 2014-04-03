@@ -154,6 +154,14 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
             'X-Goog-Acl': 'public-read'
         };
 
+        // missing extension on destination
+        // use the source or the content type
+        if (options.forceExtension && destination.split('/').pop().split('.').length === 1) {
+            var fileName = (path.href || path).split('/').pop();
+            var extension = fileName.indexOf('.') ? fileName.split('.').pop() : mime.extension(headers['Content-Type']);
+            destination += '.' + extension;
+        }
+
         var key;
         if (options.hasOwnProperty('headers')) {
             for (key in options.headers) {
