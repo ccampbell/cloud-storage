@@ -30,7 +30,7 @@ function _head(url, callback) {
             return;
         }
 
-        callback(null, request(url), {size: parseInt(resp.headers['content-length'])})
+        callback(null, request(url), {size: parseInt(resp.headers['content-length'])});
     });
 }
 
