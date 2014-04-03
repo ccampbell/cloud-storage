@@ -71,10 +71,13 @@ var options = {
     },
 
     // remove the original file on disk after it is copied
-    removeAfterCopy: true
+    removeAfterCopy: true,
+
+    // force an extension to be added to the destination
+    forceExtension: true
 };
 
-storage.copy('/path/to/file.jpg', 'gs://some-bucket/images/file.jpg', options, function(err, url) {
+storage.copy('http://someurl.com/path/to/file.jpg', 'gs://some-bucket/images/file', options, function(err, url) {
 
 });
 ```
