@@ -197,12 +197,12 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 
             if (options.removeAfterCopy && !path.readable) {
                 fs.unlink(path, function() {
-                    callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination));
+                    callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination), destinationData);
                 });
                 return;
             }
 
-            callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination));
+            callback(null, isPublic ? self.getUrl(destination) : self.getSignedUrl(destination), destinationData);
         });
     }
 
