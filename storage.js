@@ -149,7 +149,7 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
 
         var headers = {
             'Content-Length': stat.size,
-            'Content-Type': mime.lookup(path.href || path),
+            'Content-Type': mime.lookup(path.path || path),
             'Cache-Control': 'public, max-age=3600, no-transform',
             'X-Goog-Acl': 'public-read'
         };
@@ -157,7 +157,7 @@ CloudStorage.prototype.copy = function(src, destination, options, callback) {
         // missing extension on destination
         // use the source or the content type
         if (options.forceExtension && destination.split('/').pop().split('.').length === 1) {
-            var fileName = (path.href || path).split('/').pop();
+            var fileName = (path.path || path).split('/').pop();
             var extension = fileName.indexOf('.') ? fileName.split('.').pop() : mime.extension(headers['Content-Type']);
             destination += '.' + extension;
         }
